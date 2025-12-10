@@ -1,35 +1,17 @@
-package todolist
+package api
 
 import (
-	"math/rand/v2"
-	"sync"
+	"database/sql"
+	"pet1/models"
+	"pet1/services/db/postgres"
 )
 
-type ToDoList struct {
-	tasks map[int]Task
-	mtx   sync.RWMutex
-}
+func AddTask(db *sql.DB, newTask models.Task) int64 {
+	taskInsertData := postgres.TaskInsertData{
+		Title: newTask.Title,
+		Text:  newTask.Text}
 
-func NewToDoList() ToDoList {
-	return ToDoList{
-		tasks: make(map[int]Task),
-		mtx:   sync.RWMutex{},
-	}
-}
-
-func (l *ToDoList) AddTask(newTask Task) (int, error) {
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
-
-	for _, v := range l.tasks {
-		if v.title == newTask.title {
-			return 0, ErrorTaskAlreadyExists
-		}
-	}
-
-	newTaskId := rand.Int()
-	l.tasks[newTaskId] = newTask
-	return newTaskId, nil
+	return postgres.InsertTask(db, taskInsertData)
 }
 
 func (l *ToDoList) RemoveTask(taskId int) error {

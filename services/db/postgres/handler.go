@@ -46,7 +46,7 @@ func Finish(db *sql.DB) {
 }
 
 func createTasksTable(db *sql.DB) {
-	dropQuery := `drop table tasks`
+	dropQuery := `drop table if exists tasks`
 	if _, err := db.Exec(dropQuery); err != nil {
 		log.Fatal(err)
 		return

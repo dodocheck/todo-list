@@ -1,12 +1,12 @@
-package todolist
+package models
 
 import (
 	"time"
 )
 
 type Task struct {
-	title      string
-	text       string
+	Title      string
+	Text       string
 	finished   bool
 	createdAt  time.Time
 	finishedAt *time.Time
@@ -14,8 +14,8 @@ type Task struct {
 
 func NewTask(title string, text string) *Task {
 	return &Task{
-		title:      title,
-		text:       text,
+		Title:      title,
+		Text:       text,
 		finished:   false,
 		createdAt:  time.Now(),
 		finishedAt: nil}
