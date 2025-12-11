@@ -24,7 +24,7 @@ func (s *HttpServer) StartServer() error {
 	router.Path("/tasks").Methods("DELETE").HandlerFunc(s.httpHandlers.handleDeleteTask)
 	router.Path("/tasks").Methods("PATCH").HandlerFunc(s.httpHandlers.handleFinishTask)
 
-	server := http.Server{Addr: "localhost:9091", Handler: router}
+	server := http.Server{Addr: "localhost:9090", Handler: router}
 
 	s.httpHandlers.SetCloseServerFunc(server.Close)
 
