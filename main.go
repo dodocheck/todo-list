@@ -1,22 +1,20 @@
 package main
 
 import (
+	"log"
+	"pet1/services/api"
 	"pet1/services/db/postgres"
+	web "pet1/services/web/http"
 
-	"github.com/k0kubun/pp/v3"
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	postgresController := postgres.NewPostgresController()
+	toDoList := api.NewToDoList(postgresController)
+	httpServer := web.NewHttpServer(toDoList)
 
-	db := postgres.Init()
-
-	tasks := postgres.ListAllTasks(db)
-	pp.Println(tasks)
-
-	newTaskId := postgres.InsertTask(db, postgres.TaskInsertData{Title: "Тестовый Title", Text: "Тестовый Text"})
-	newTask := postgres.GetTask(db, newTaskId)
-	pp.Println(newTask)
-
-	postgres.Finish(db)
+	if err := httpServer.StartServer(); err != nil {
+		log.Fatal("Failed to start http web server:", err)
+	}
 }

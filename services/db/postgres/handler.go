@@ -3,109 +3,59 @@ package postgres
 import (
 	"database/sql"
 	"log"
-	"time"
+	"pet1/models"
 
 	_ "github.com/lib/pq"
 )
 
-type TaskInsertData struct {
-	Title string
-	Text  string
+type PostgresController struct {
+	db *sql.DB
 }
 
-type TaskReceiveData struct {
-	Id         int64
-	Title      string
-	Text       string
-	Finished   bool
-	CreatedAt  time.Time
-	FinishedAt *time.Time
+func NewPostgresController() *PostgresController {
+	return &PostgresController{db: initDB()}
 }
 
-func Init() *sql.DB {
-	connStr := "postgres://my_user:my_password@localhost:5432/my_db?sslmode=disable"
+func (pc *PostgresController) Close() {
+	pc.db.Close()
+}
 
-	db, err := sql.Open("postgres", connStr)
+func (pc *PostgresController) AddTask(task models.TaskImportData) (models.TaskExportData, error) {
+	query := `insert into tasks (title,text) values ($1,$2) returning id, title, text, finished, created_at, finished_at`
+
+	var createdTask models.TaskExportData
+	if err := pc.db.QueryRow(query, task.Title, task.Text).Scan(
+		&createdTask.Id,
+		&createdTask.Title,
+		&createdTask.Text,
+		&createdTask.Finished,
+		&createdTask.CreatedAt,
+		&createdTask.FinishedAt); err != nil {
+		return models.TaskExportData{}, err
+	}
+
+	return createdTask, nil
+}
+
+func (pc *PostgresController) DeleteTask(id int) error {
+	if _, err := pc.db.Exec("delete from tasks where id = $1", id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pc *PostgresController) ListAllTasks() ([]models.TaskExportData, error) {
+	sliceToReturn := make([]models.TaskExportData, 0)
+
+	rows, err := pc.db.Query("select id, title, text, finished, created_at, finished_at from tasks order by id")
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
-	}
-
-	createTasksTable(db)
-
-	seedTasks(db)
-
-	return db
-}
-
-func Finish(db *sql.DB) {
-	db.Close()
-}
-
-func createTasksTable(db *sql.DB) {
-	dropQuery := `drop table if exists tasks`
-	if _, err := db.Exec(dropQuery); err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	createQuery := `create table if not exists tasks (
-				id bigserial primary key,
-				title varchar(20) not null,
-				text varchar(100),
-				finished bool default false,
-				created_at timestamp not null default NOW(),
-				finished_at timestamp default NULL);`
-
-	if _, err := db.Exec(createQuery); err != nil {
-		log.Fatal(err)
-		return
-	}
-}
-
-func InsertTask(db *sql.DB, task TaskInsertData) int64 {
-	query := `insert into tasks (title,text) values ($1,$2) returning id`
-
-	var id int64
-	if err := db.QueryRow(query, task.Title, task.Text).Scan(&id); err != nil {
-		log.Fatal(err)
-	}
-
-	return id
-}
-
-func GetTask(db *sql.DB, id int64) TaskReceiveData {
-	var taskToReturn TaskReceiveData
-	if err := db.QueryRow("select id, title, text, finished, created_at, finished_at from tasks where id = $1", id).Scan(
-		&taskToReturn.Id,
-		&taskToReturn.Title,
-		&taskToReturn.Text,
-		&taskToReturn.Finished,
-		&taskToReturn.CreatedAt,
-		&taskToReturn.FinishedAt); err != nil {
-		if err == sql.ErrNoRows {
-			log.Fatalf("No rows found with id = %d", id)
-		}
-		log.Fatal(err)
-	}
-
-	return taskToReturn
-}
-
-func ListAllTasks(db *sql.DB) []TaskReceiveData {
-	sliceToReturn := make([]TaskReceiveData, 0)
-
-	rows, err := db.Query("select id, title, text, finished, created_at, finished_at from tasks")
-	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var task TaskReceiveData
+		var task models.TaskExportData
 		if err := rows.Scan(
 			&task.Id,
 			&task.Title,
@@ -118,5 +68,27 @@ func ListAllTasks(db *sql.DB) []TaskReceiveData {
 		sliceToReturn = append(sliceToReturn, task)
 	}
 
-	return sliceToReturn
+	return sliceToReturn, nil
+}
+
+func (pc *PostgresController) MarkTaskFinished(id int) (models.TaskExportData, error) {
+	query := `update tasks 
+		set finished = true, 
+		finished_at = NOW() 
+		where id = $1 
+		returning id, title, text, finished, created_at, finished_at`
+
+	var updatedTask models.TaskExportData
+
+	if err := pc.db.QueryRow(query, id).Scan(
+		&updatedTask.Id,
+		&updatedTask.Title,
+		&updatedTask.Text,
+		&updatedTask.Finished,
+		&updatedTask.CreatedAt,
+		&updatedTask.FinishedAt); err != nil {
+		return models.TaskExportData{}, err
+	}
+
+	return updatedTask, nil
 }

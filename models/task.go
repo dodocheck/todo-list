@@ -4,25 +4,16 @@ import (
 	"time"
 )
 
-type Task struct {
+type TaskExportData struct {
+	Id         int
 	Title      string
 	Text       string
-	finished   bool
-	createdAt  time.Time
-	finishedAt *time.Time
+	Finished   bool
+	CreatedAt  time.Time
+	FinishedAt *time.Time
 }
 
-func NewTask(title string, text string) *Task {
-	return &Task{
-		Title:      title,
-		Text:       text,
-		finished:   false,
-		createdAt:  time.Now(),
-		finishedAt: nil}
-}
-
-func (t *Task) MarkFinished() {
-	t.finished = true
-	finishedAt := time.Now()
-	t.finishedAt = &finishedAt
+type TaskImportData struct {
+	Title string
+	Text  string
 }
