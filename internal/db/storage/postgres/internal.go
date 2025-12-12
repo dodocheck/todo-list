@@ -3,11 +3,11 @@ package postgres
 import (
 	"database/sql"
 	"log"
-	"pet1/models"
+	"pet1/pkg/contracts"
 )
 
 func initDB() *sql.DB {
-	connStr := "postgres://my_user:my_password@localhost:5432/my_db?sslmode=disable"
+	connStr := "postgres://my_user:my_password@postgres:5432/my_db?sslmode=disable"
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -33,12 +33,12 @@ func createTasksTable(db *sql.DB) {
 	}
 
 	createQuery := `create table if not exists tasks (
-				id bigserial primary key,
-				title varchar(20) not null,
-				text varchar(100),
-				finished bool default false,
-				created_at timestamp not null default NOW(),
-				finished_at timestamp default NULL);`
+                id bigserial primary key,
+                title varchar(20) not null,
+                text varchar(100),
+                finished bool default false,
+                created_at timestamp not null default NOW(),
+                finished_at timestamp default NULL);`
 
 	if _, err := db.Exec(createQuery); err != nil {
 		log.Fatal(err)
@@ -47,7 +47,7 @@ func createTasksTable(db *sql.DB) {
 }
 
 func seedTasks(db *sql.DB) {
-	tasks := []models.TaskImportData{
+	tasks := []contracts.TaskImportData{
 		{Title: "Помыть посуду", Text: "После ужина на кухне"},
 		{Title: "Сходить в зал", Text: "Тренировка спины и ног"},
 		{Title: "Позвонить маме", Text: "Уточнить планы на выходные"},

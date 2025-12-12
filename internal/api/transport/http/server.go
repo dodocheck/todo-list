@@ -1,9 +1,9 @@
-package web
+package http
 
 import (
 	"errors"
 	"net/http"
-	"pet1/services/api"
+	"pet1/internal/api/app"
 
 	"github.com/gorilla/mux"
 )
@@ -12,8 +12,8 @@ type HttpServer struct {
 	httpHandlers *HttpHandlers
 }
 
-func NewHttpServer(toDoList *api.ToDoList) *HttpServer {
-	return &HttpServer{httpHandlers: NewHttpHandlers(toDoList)}
+func NewHttpServer(service *app.Service) *HttpServer {
+	return &HttpServer{httpHandlers: NewHttpHandlers(service)}
 }
 
 func (s *HttpServer) StartServer() error {
@@ -24,7 +24,7 @@ func (s *HttpServer) StartServer() error {
 	router.Path("/tasks").Methods("DELETE").HandlerFunc(s.httpHandlers.handleDeleteTask)
 	router.Path("/tasks").Methods("PATCH").HandlerFunc(s.httpHandlers.handleFinishTask)
 
-	server := http.Server{Addr: "localhost:9090", Handler: router}
+	server := http.Server{Addr: ":9090", Handler: router}
 
 	s.httpHandlers.SetCloseServerFunc(server.Close)
 

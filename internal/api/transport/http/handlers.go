@@ -1,21 +1,21 @@
-package web
+package http
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"pet1/models"
-	"pet1/services/api"
+	"pet1/internal/api/app"
+	"pet1/pkg/contracts"
 )
 
 type HttpHandlers struct {
-	toDoList    *api.ToDoList
+	service     *app.Service
 	closeServer func() error
 }
 
-func NewHttpHandlers(toDoList *api.ToDoList) *HttpHandlers {
+func NewHttpHandlers(service *app.Service) *HttpHandlers {
 	return &HttpHandlers{
-		toDoList:    toDoList,
+		service:     service,
 		closeServer: nil}
 }
 
@@ -45,11 +45,12 @@ func (h *HttpHandlers) handleAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	taskImportData := models.TaskImportData{
+	taskImportData := contracts.TaskImportData{
 		Title: taskDTO.Title,
 		Text:  taskDTO.Text}
 
-	createdTask, err := h.toDoList.AddTask(taskImportData)
+	ctx := r.Context()
+	createdTask, err := h.service.AddTask(ctx, taskImportData)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusBadRequest)
@@ -84,7 +85,8 @@ failure:
   - response body: JSON with error + time
 */
 func (h *HttpHandlers) handleListAllTasks(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.toDoList.ListAllTasks()
+	ctx := r.Context()
+	tasks, err := h.service.ListAllTasks(ctx)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)
@@ -127,7 +129,8 @@ func (h *HttpHandlers) handleDeleteTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := h.toDoList.RemoveTask(idDTO.Id); err != nil {
+	ctx := r.Context()
+	if err := h.service.RemoveTask(ctx, idDTO.Id); err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)
 		return
@@ -159,7 +162,8 @@ func (h *HttpHandlers) handleFinishTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	updatedTask, err := h.toDoList.MarkTaskFinished(idDTO.Id)
+	ctx := r.Context()
+	updatedTask, err := h.service.MarkTaskFinished(ctx, idDTO.Id)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)
