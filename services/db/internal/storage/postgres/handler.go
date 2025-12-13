@@ -4,9 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/dodocheck/go-pet-project-1/shared/contracts"
-
-	_ "github.com/lib/pq"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
 )
 
 type PostgresController struct {
@@ -21,10 +19,10 @@ func (pc *PostgresController) Close() {
 	pc.db.Close()
 }
 
-func (pc *PostgresController) AddTask(task contracts.TaskImportData) (contracts.TaskExportData, error) {
+func (pc *PostgresController) AddTask(task models.TaskImportData) (models.TaskExportData, error) {
 	query := `insert into tasks (title,text) values ($1,$2) returning id, title, text, finished, created_at, finished_at`
 
-	var createdTask contracts.TaskExportData
+	var createdTask models.TaskExportData
 	if err := pc.db.QueryRow(query, task.Title, task.Text).Scan(
 		&createdTask.Id,
 		&createdTask.Title,
@@ -32,7 +30,7 @@ func (pc *PostgresController) AddTask(task contracts.TaskImportData) (contracts.
 		&createdTask.Finished,
 		&createdTask.CreatedAt,
 		&createdTask.FinishedAt); err != nil {
-		return contracts.TaskExportData{}, err
+		return models.TaskExportData{}, err
 	}
 
 	return createdTask, nil
@@ -46,8 +44,8 @@ func (pc *PostgresController) DeleteTask(id int) error {
 	return nil
 }
 
-func (pc *PostgresController) ListAllTasks() ([]contracts.TaskExportData, error) {
-	sliceToReturn := make([]contracts.TaskExportData, 0)
+func (pc *PostgresController) ListAllTasks() ([]models.TaskExportData, error) {
+	sliceToReturn := make([]models.TaskExportData, 0)
 
 	rows, err := pc.db.Query("select id, title, text, finished, created_at, finished_at from tasks order by id")
 	if err != nil {
@@ -56,7 +54,7 @@ func (pc *PostgresController) ListAllTasks() ([]contracts.TaskExportData, error)
 	defer rows.Close()
 
 	for rows.Next() {
-		var task contracts.TaskExportData
+		var task models.TaskExportData
 		if err := rows.Scan(
 			&task.Id,
 			&task.Title,
@@ -72,14 +70,14 @@ func (pc *PostgresController) ListAllTasks() ([]contracts.TaskExportData, error)
 	return sliceToReturn, nil
 }
 
-func (pc *PostgresController) MarkTaskFinished(id int) (contracts.TaskExportData, error) {
+func (pc *PostgresController) MarkTaskFinished(id int) (models.TaskExportData, error) {
 	query := `update tasks 
         set finished = true, 
         finished_at = NOW() 
         where id = $1 
         returning id, title, text, finished, created_at, finished_at`
 
-	var updatedTask contracts.TaskExportData
+	var updatedTask models.TaskExportData
 
 	if err := pc.db.QueryRow(query, id).Scan(
 		&updatedTask.Id,
@@ -88,7 +86,7 @@ func (pc *PostgresController) MarkTaskFinished(id int) (contracts.TaskExportData
 		&updatedTask.Finished,
 		&updatedTask.CreatedAt,
 		&updatedTask.FinishedAt); err != nil {
-		return contracts.TaskExportData{}, err
+		return models.TaskExportData{}, err
 	}
 
 	return updatedTask, nil

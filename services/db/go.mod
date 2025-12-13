@@ -2,4 +2,15 @@ module github.com/dodocheck/go-pet-project-1/services/db
 
 go 1.25.4
 
-require github.com/lib/pq v1.10.9
+require (
+	github.com/gorilla/mux v1.8.1
+	github.com/k0kubun/pp/v3 v3.5.0
+	github.com/lib/pq v1.10.9
+)
+
+require (
+	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
+)

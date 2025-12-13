@@ -5,18 +5,18 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
-	"github.com/dodocheck/go-pet-project-1/services/api/internal/models"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/app"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
 )
 
 type HttpHandlers struct {
-	service     *app.Service
+	controller  app.Controller
 	closeServer func() error
 }
 
-func NewHttpHandlers(service *app.Service) *HttpHandlers {
+func NewHttpHandlers(controller app.Controller) *HttpHandlers {
 	return &HttpHandlers{
-		service:     service,
+		controller:  controller,
 		closeServer: nil}
 }
 
@@ -50,8 +50,7 @@ func (h *HttpHandlers) handleAddTask(w http.ResponseWriter, r *http.Request) {
 		Title: taskDTO.Title,
 		Text:  taskDTO.Text}
 
-	ctx := r.Context()
-	createdTask, err := h.service.AddTask(ctx, taskImportData)
+	createdTask, err := h.controller.AddTask(taskImportData)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusBadRequest)
@@ -86,8 +85,7 @@ failure:
   - response body: JSON with error + time
 */
 func (h *HttpHandlers) handleListAllTasks(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	tasks, err := h.service.ListAllTasks(ctx)
+	tasks, err := h.controller.ListAllTasks()
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)
@@ -130,8 +128,7 @@ func (h *HttpHandlers) handleDeleteTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	ctx := r.Context()
-	if err := h.service.RemoveTask(ctx, idDTO.Id); err != nil {
+	if err := h.controller.DeleteTask(idDTO.Id); err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)
 		return
@@ -163,8 +160,7 @@ func (h *HttpHandlers) handleFinishTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	ctx := r.Context()
-	updatedTask, err := h.service.MarkTaskFinished(ctx, idDTO.Id)
+	updatedTask, err := h.controller.MarkTaskFinished(idDTO.Id)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)

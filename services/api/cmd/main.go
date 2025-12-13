@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	dbServiceStr := "http://db-service"
+	dbServiceStr := "http://db-service:9091"
 	dbClient := dbhttp.NewDBClient(dbServiceStr)
 	service := app.NewService(dbClient)
 	httpServer := http.NewHttpServer(service)

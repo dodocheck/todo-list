@@ -1,11 +1,11 @@
-package db
+package app
 
-import "github.com/dodocheck/go-pet-project-1/shared/contracts"
+import "github.com/dodocheck/go-pet-project-1/services/db/internal/models"
 
 type Controller interface {
-	AddTask(task contracts.TaskImportData) (contracts.TaskExportData, error)
+	AddTask(task models.TaskImportData) (models.TaskExportData, error)
 	DeleteTask(id int) error
-	ListAllTasks() ([]contracts.TaskExportData, error)
-	MarkTaskFinished(id int) (contracts.TaskExportData, error)
+	ListAllTasks() ([]models.TaskExportData, error)
+	MarkTaskFinished(id int) (models.TaskExportData, error)
 	Close()
 }

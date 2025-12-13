@@ -4,31 +4,35 @@ services:
     build:
       context: ./../services/api
       dockerfile: ./Dockerfile
-    container_name: api-service
     ports:
       - "9090:9090"
-    # depends_on: 
-    #   db-service:
-    #     condition: service_healthy
+    depends_on: 
+      db-service:
+        condition: service_started
 
   db-service: 
     build:
       context: ./../services/db
       dockerfile: ./Dockerfile
-    container_name: db-service
+    ports:
+      - "9091:9091"
     depends_on: 
       postgres:
         condition: service_healthy
 
   postgres:
     image: postgres:18-alpine
-    container_name: postgres
     environment:
       POSTGRES_USER: my_user
       POSTGRES_PASSWORD: my_password
       POSTGRES_DB: my_db
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U my_user -d my_db"]
+      interval: 1s
+      timeout: 1s
+      retries: 5
 
 volumes:
   pgdata:

@@ -3,20 +3,31 @@ package postgres
 import (
 	"database/sql"
 	"log"
+	"time"
 
-	"github.com/dodocheck/go-pet-project-1/shared/contracts"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
+	_ "github.com/lib/pq"
 )
 
 func initDB() *sql.DB {
 	connStr := "postgres://my_user:my_password@postgres:5432/my_db?sslmode=disable"
 
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
+	var db *sql.DB
+	var err error
+
+	connRetries := 15
+	for range connRetries {
+		db, err = sql.Open("postgres", connStr)
+		if err == nil && db.Ping() == nil {
+			log.Println("Connected to Postgres!")
+			break
+		}
+		log.Println("Postgres not ready yet, retrying...", err)
+		time.Sleep(2 * time.Second)
 	}
 
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
+	if err != nil {
+		log.Fatal("Could not connect to Postgres:", err)
 	}
 
 	createTasksTable(db)
@@ -48,7 +59,7 @@ func createTasksTable(db *sql.DB) {
 }
 
 func seedTasks(db *sql.DB) {
-	tasks := []contracts.TaskImportData{
+	tasks := []models.TaskImportData{
 		{Title: "Помыть посуду", Text: "После ужина на кухне"},
 		{Title: "Сходить в зал", Text: "Тренировка спины и ног"},
 		{Title: "Позвонить маме", Text: "Уточнить планы на выходные"},
