@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 	"net/http"
+	"os"
 
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/app"
 	"github.com/gorilla/mux"
@@ -24,7 +25,7 @@ func (s *HttpServer) StartServer() error {
 	router.Path("/tasks").Methods("DELETE").HandlerFunc(s.httpHandlers.handleDeleteTask)
 	router.Path("/tasks").Methods("PATCH").HandlerFunc(s.httpHandlers.handleFinishTask)
 
-	server := http.Server{Addr: ":9091", Handler: router}
+	server := http.Server{Addr: ":" + os.Getenv("DB_SERVICE_INTERNAL_PORT"), Handler: router}
 
 	s.httpHandlers.SetCloseServerFunc(server.Close)
 

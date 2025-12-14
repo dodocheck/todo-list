@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
 	dbhttp "github.com/dodocheck/go-pet-project-1/services/api/internal/clients/db/http"
@@ -9,7 +10,7 @@ import (
 )
 
 func main() {
-	dbServiceStr := "http://db-service:9091"
+	dbServiceStr := os.Getenv("DB_SERVICE_HTTP_SERVER_URL")
 	dbClient := dbhttp.NewDBClient(dbServiceStr)
 	service := app.NewService(dbClient)
 	httpServer := http.NewHttpServer(service)

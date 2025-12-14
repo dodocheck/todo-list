@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"log"
+	"os"
 	"time"
 
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
@@ -10,7 +11,11 @@ import (
 )
 
 func initDB() *sql.DB {
-	connStr := "postgres://my_user:my_password@postgres:5432/my_db?sslmode=disable"
+	pUser := os.Getenv("POSTGRES_USER")
+	pPassword := os.Getenv("POSTGRES_PASSWORD")
+	pDb := os.Getenv("POSTGRES_DB")
+	pPort := os.Getenv("POSTGRES_PORT")
+	connStr := "postgres://" + pUser + ":" + pPassword + "@postgres:" + pPort + "/" + pDb + "?sslmode=disable"
 
 	var db *sql.DB
 	var err error

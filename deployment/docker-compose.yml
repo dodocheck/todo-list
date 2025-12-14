@@ -1,21 +1,31 @@
 services:
 
   api-service:
+    container_name: api-service
     build:
       context: ./../services/api
       dockerfile: ./Dockerfile
     ports:
-      - "9090:9090"
+      - "${API_SERVICE_EXTERNAL_PORT}:${API_SERVICE_INTERNAL_PORT}"
+    environment:
+      DB_SERVICE_HTTP_SERVER_URL: ${DB_SERVICE_HTTP_SERVER_URL}
+      API_SERVICE_EXTERNAL_PORT: ${API_SERVICE_EXTERNAL_PORT}
+      API_SERVICE_INTERNAL_PORT: ${API_SERVICE_INTERNAL_PORT}
     depends_on: 
       db-service:
         condition: service_started
 
   db-service: 
+    container_name: db-service
     build:
       context: ./../services/db
       dockerfile: ./Dockerfile
-    ports:
-      - "9091:9091"
+    environment:
+      DB_SERVICE_INTERNAL_PORT: ${DB_SERVICE_INTERNAL_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
     depends_on: 
       postgres:
         condition: service_healthy
@@ -23,16 +33,17 @@ services:
   postgres:
     image: postgres:18-alpine
     environment:
-      POSTGRES_USER: my_user
-      POSTGRES_PASSWORD: my_password
-      POSTGRES_DB: my_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGPORT: ${POSTGRES_PORT}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U my_user -d my_db"]
+      test: ["CMD-SHELL", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -h 127.0.0.1 -p \"$POSTGRES_PORT\""]
       interval: 1s
       timeout: 1s
-      retries: 5
+      retries: 10
 
 volumes:
   pgdata:
