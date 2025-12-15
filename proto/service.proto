@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package tasks_pb;
+
+import "tasks.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/dodocheck/go-pet-project-1/pb;pb";
+
+// Tasks functions API
+service TasksService {
+  rpc AddTask(TaskImportData) returns (TaskExportData);
+  rpc RemoveTask(TaskId) returns (google.protobuf.Empty);
+  rpc ListAllTasks(google.protobuf.Empty) returns (TaskList);
+  rpc MarkTaskFinished(TaskId) returns (TaskExportData);
+}
