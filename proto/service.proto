@@ -5,8 +5,6 @@ package tasks_pb;
 import "tasks.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/dodocheck/go-pet-project-1/pb;pb";
-
 // Tasks functions API
 service TasksService {
   rpc AddTask(TaskImportData) returns (TaskExportData);

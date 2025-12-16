@@ -9,15 +9,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type HttpServer struct {
+type Server struct {
 	httpHandlers *HttpHandlers
 }
 
-func NewHttpServer(controller app.Controller) *HttpServer {
-	return &HttpServer{httpHandlers: NewHttpHandlers(controller)}
+func NewServer(dbController app.DBController) *Server {
+	return &Server{httpHandlers: NewHttpHandlers(dbController)}
 }
 
-func (s *HttpServer) StartServer() error {
+func (s *Server) StartServer() error {
 	router := mux.NewRouter()
 
 	router.Path("/tasks").Methods("POST").HandlerFunc(s.httpHandlers.handleAddTask)

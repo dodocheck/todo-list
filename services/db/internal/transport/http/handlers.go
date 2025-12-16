@@ -5,16 +5,16 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/dodocheck/go-pet-project-1/pb"
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/app"
+	"github.com/dodocheck/go-pet-project-1/services/db/pb"
 )
 
 type HttpHandlers struct {
-	controller  app.Controller
+	controller  app.DBController
 	closeServer func() error
 }
 
-func NewHttpHandlers(controller app.Controller) *HttpHandlers {
+func NewHttpHandlers(controller app.DBController) *HttpHandlers {
 	return &HttpHandlers{
 		controller:  controller,
 		closeServer: nil}

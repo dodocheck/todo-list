@@ -270,7 +270,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06TaskId\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\":\n" +
 	"\bTaskList\x12.\n" +
-	"\x05tasks\x18\x01 \x03(\v2\x18.tasks_pb.TaskExportDataR\x05tasksB-Z+github.com/dodocheck/go-pet-project-1/pb;pbb\x06proto3"
+	"\x05tasks\x18\x01 \x03(\v2\x18.tasks_pb.TaskExportDataR\x05tasksb\x06proto3"
 
 var (
 	file_tasks_proto_rawDescOnce sync.Once

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dodocheck/go-pet-project-1/pb"
+	"github.com/dodocheck/go-pet-project-1/services/api/pb"
 )
 
 type DBClient struct {

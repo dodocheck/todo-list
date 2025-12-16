@@ -31,7 +31,7 @@ const file_service_proto_rawDesc = "" +
 	"\n" +
 	"RemoveTask\x12\x10.tasks_pb.TaskId\x1a\x16.google.protobuf.Empty\x12:\n" +
 	"\fListAllTasks\x12\x16.google.protobuf.Empty\x1a\x12.tasks_pb.TaskList\x12>\n" +
-	"\x10MarkTaskFinished\x12\x10.tasks_pb.TaskId\x1a\x18.tasks_pb.TaskExportDataB-Z+github.com/dodocheck/go-pet-project-1/pb;pbb\x06proto3"
+	"\x10MarkTaskFinished\x12\x10.tasks_pb.TaskId\x1a\x18.tasks_pb.TaskExportDatab\x06proto3"
 
 var file_service_proto_goTypes = []any{
 	(*TaskImportData)(nil), // 0: tasks_pb.TaskImportData

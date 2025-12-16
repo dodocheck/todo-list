@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/dodocheck/go-pet-project-1/services/db/internal/storage/postgres"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/dbcontroller/postgres"
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/transport/http"
 	"github.com/k0kubun/pp/v3"
 )

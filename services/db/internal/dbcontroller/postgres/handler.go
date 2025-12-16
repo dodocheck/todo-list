@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/dodocheck/go-pet-project-1/pb"
+	"github.com/dodocheck/go-pet-project-1/services/db/pb"
 )
 
 type PostgresController struct {

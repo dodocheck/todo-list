@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/dodocheck/go-pet-project-1/pb"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
+	"github.com/dodocheck/go-pet-project-1/services/api/pb"
 )
 
 type HttpHandlers struct {

@@ -12,6 +12,7 @@ services:
       DB_SERVICE_HTTP_SERVER_URL: ${DB_SERVICE_HTTP_SERVER_URL}
       API_SERVICE_EXTERNAL_PORT: ${API_SERVICE_EXTERNAL_PORT}
       API_SERVICE_INTERNAL_PORT: ${API_SERVICE_INTERNAL_PORT}
+      DB_GRPC_ADDR: ${DB_GRPC_ADDR}
     depends_on: 
       db-service:
         condition: service_started

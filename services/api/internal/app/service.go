@@ -3,29 +3,30 @@ package app
 import (
 	"context"
 
-	"github.com/dodocheck/go-pet-project-1/pb"
+	"github.com/dodocheck/go-pet-project-1/services/api/pb"
 )
 
 type Service struct {
-	store TaskStore
+	dbClient DBClient
 }
 
-func NewService(store TaskStore) *Service {
+func NewService(dbClient DBClient) *Service {
 	return &Service{
-		store: store}
+		dbClient: dbClient}
 }
 
 func (s *Service) AddTask(ctx context.Context, task pb.TaskImportData) (pb.TaskExportData, error) {
-	return s.store.AddTask(ctx, task)
+	return s.dbClient.AddTask(ctx, task)
 }
+
 func (s *Service) RemoveTask(ctx context.Context, id int) error {
-	return s.store.RemoveTask(ctx, id)
+	return s.dbClient.RemoveTask(ctx, id)
 }
 
 func (s *Service) ListAllTasks(ctx context.Context) ([]pb.TaskExportData, error) {
-	return s.store.ListAllTasks(ctx)
+	return s.dbClient.ListAllTasks(ctx)
 }
 
 func (s *Service) MarkTaskFinished(ctx context.Context, id int) (pb.TaskExportData, error) {
-	return s.store.MarkTaskFinished(ctx, id)
+	return s.dbClient.MarkTaskFinished(ctx, id)
 }

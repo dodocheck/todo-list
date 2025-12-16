@@ -5,14 +5,27 @@ import (
 	"os"
 
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
-	dbhttp "github.com/dodocheck/go-pet-project-1/services/api/internal/clients/db/http"
+	dbgrpc "github.com/dodocheck/go-pet-project-1/services/api/internal/dbclient/grpc"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/transport/http"
+	"github.com/dodocheck/go-pet-project-1/services/api/pb"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
-	dbServiceStr := os.Getenv("DB_SERVICE_HTTP_SERVER_URL")
-	dbClient := dbhttp.NewDBClient(dbServiceStr)
+	dbAddr := os.Getenv("DB_SERVICE_GRPC_SERVER_ADDR")
+	conn, err := grpc.NewClient(dbAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal("Failed to dial grpc db:", err)
+	}
+	defer conn.Close()
+
+	grpcClient := pb.NewTasksServiceClient(conn)
+
+	dbClient := dbgrpc.NewDBClient(grpcClient)
+
 	service := app.NewService(dbClient)
+
 	httpServer := http.NewHttpServer(service)
 
 	if err := httpServer.StartServer(); err != nil {

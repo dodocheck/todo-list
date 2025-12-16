@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/dodocheck/go-pet-project-1/pb"
+	"github.com/dodocheck/go-pet-project-1/services/db/pb"
 	_ "github.com/lib/pq"
 )
 

@@ -4,8 +4,6 @@ import "google/protobuf/timestamp.proto";
 
 package tasks_pb;
 
-option go_package = "github.com/dodocheck/go-pet-project-1/pb;pb";
-
 // Data for adding a new task
 message TaskImportData {
   string title = 1;
