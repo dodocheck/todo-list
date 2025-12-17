@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	dbAddr := os.Getenv("DB_SERVICE_GRPC_SERVER_ADDR")
+	dbAddr := os.Getenv("GRPC_CLIENT_ADDR")
 	conn, err := grpc.NewClient(dbAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal("Failed to dial grpc db:", err)

@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/dodocheck/go-pet-project-1/services/db/pb"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
 	_ "github.com/lib/pq"
 )
 
@@ -64,7 +64,7 @@ func createTasksTable(db *sql.DB) {
 }
 
 func seedTasks(db *sql.DB) {
-	tasks := []pb.TaskImportData{
+	tasks := []models.TaskImportData{
 		{Title: "Помыть посуду", Text: "После ужина на кухне"},
 		{Title: "Сходить в зал", Text: "Тренировка спины и ног"},
 		{Title: "Позвонить маме", Text: "Уточнить планы на выходные"},

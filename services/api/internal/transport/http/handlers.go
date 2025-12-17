@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
-	"github.com/dodocheck/go-pet-project-1/services/api/pb"
+	"github.com/dodocheck/go-pet-project-1/services/api/internal/models"
 )
 
 type HttpHandlers struct {
@@ -46,7 +46,7 @@ func (h *HttpHandlers) handleAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	taskImportData := pb.TaskImportData{
+	taskImportData := models.TaskImportData{
 		Title: taskDTO.Title,
 		Text:  taskDTO.Text}
 

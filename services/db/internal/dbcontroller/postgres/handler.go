@@ -1,10 +1,11 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
-	"github.com/dodocheck/go-pet-project-1/services/db/pb"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
 )
 
 type PostgresController struct {
@@ -19,10 +20,10 @@ func (pc *PostgresController) Close() {
 	pc.db.Close()
 }
 
-func (pc *PostgresController) AddTask(task pb.TaskImportData) (pb.TaskExportData, error) {
+func (pc *PostgresController) AddTask(_ context.Context, task models.TaskImportData) (models.TaskExportData, error) {
 	query := `insert into tasks (title,text) values ($1,$2) returning id, title, text, finished, created_at, finished_at`
 
-	var createdTask pb.TaskExportData
+	var createdTask models.TaskExportData
 	if err := pc.db.QueryRow(query, task.Title, task.Text).Scan(
 		&createdTask.Id,
 		&createdTask.Title,
@@ -30,13 +31,13 @@ func (pc *PostgresController) AddTask(task pb.TaskImportData) (pb.TaskExportData
 		&createdTask.Finished,
 		&createdTask.CreatedAt,
 		&createdTask.FinishedAt); err != nil {
-		return pb.TaskExportData{}, err
+		return models.TaskExportData{}, err
 	}
 
 	return createdTask, nil
 }
 
-func (pc *PostgresController) DeleteTask(id int) error {
+func (pc *PostgresController) DeleteTask(_ context.Context, id int) error {
 	if _, err := pc.db.Exec("delete from tasks where id = $1", id); err != nil {
 		return err
 	}
@@ -44,8 +45,8 @@ func (pc *PostgresController) DeleteTask(id int) error {
 	return nil
 }
 
-func (pc *PostgresController) ListAllTasks() ([]pb.TaskExportData, error) {
-	sliceToReturn := make([]pb.TaskExportData, 0)
+func (pc *PostgresController) ListAllTasks(_ context.Context) ([]models.TaskExportData, error) {
+	sliceToReturn := make([]models.TaskExportData, 0)
 
 	rows, err := pc.db.Query("select id, title, text, finished, created_at, finished_at from tasks order by id")
 	if err != nil {
@@ -54,7 +55,7 @@ func (pc *PostgresController) ListAllTasks() ([]pb.TaskExportData, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var task pb.TaskExportData
+		var task models.TaskExportData
 		if err := rows.Scan(
 			&task.Id,
 			&task.Title,
@@ -70,14 +71,14 @@ func (pc *PostgresController) ListAllTasks() ([]pb.TaskExportData, error) {
 	return sliceToReturn, nil
 }
 
-func (pc *PostgresController) MarkTaskFinished(id int) (pb.TaskExportData, error) {
+func (pc *PostgresController) MarkTaskFinished(_ context.Context, id int) (models.TaskExportData, error) {
 	query := `update tasks 
         set finished = true, 
         finished_at = NOW() 
         where id = $1 
         returning id, title, text, finished, created_at, finished_at`
 
-	var updatedTask pb.TaskExportData
+	var updatedTask models.TaskExportData
 
 	if err := pc.db.QueryRow(query, id).Scan(
 		&updatedTask.Id,
@@ -86,7 +87,7 @@ func (pc *PostgresController) MarkTaskFinished(id int) (pb.TaskExportData, error
 		&updatedTask.Finished,
 		&updatedTask.CreatedAt,
 		&updatedTask.FinishedAt); err != nil {
-		return pb.TaskExportData{}, err
+		return models.TaskExportData{}, err
 	}
 
 	return updatedTask, nil

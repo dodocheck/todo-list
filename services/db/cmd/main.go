@@ -2,20 +2,19 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/dbcontroller/postgres"
-	"github.com/dodocheck/go-pet-project-1/services/db/internal/transport/http"
-	"github.com/k0kubun/pp/v3"
+	"github.com/dodocheck/go-pet-project-1/services/db/internal/transport/grpc"
 )
 
 func main() {
 	dbController := postgres.NewPostgresController()
-	httpServer := http.NewHttpServer(dbController)
+	server := grpc.NewServer(dbController)
 
-	pp.Println(dbController.ListAllTasks())
-
-	if err := httpServer.StartServer(); err != nil {
-		log.Fatal("Failed to start http web server:", err)
+	dbGrpcServerAddress := os.Getenv("GRPC_SERVER_ADDR")
+	if err := server.StartServer(dbGrpcServerAddress); err != nil {
+		log.Fatal("Failed to start server:", err)
 	}
 
 }
