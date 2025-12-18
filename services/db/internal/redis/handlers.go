@@ -26,6 +26,10 @@ func initRedis(ctx context.Context, address string) (*redis.Client, error) {
 	return redisClient, nil
 }
 
+func (rc *RedisController) Close() error {
+	return rc.redisClient.Close()
+}
+
 func (rc *RedisController) CacheTaskList(ctx context.Context, tasks []models.TaskExportData) error {
 	taskList, err := json.Marshal(tasks)
 	if err != nil {
