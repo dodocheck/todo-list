@@ -14,8 +14,7 @@ func initDB() *sql.DB {
 	pUser := os.Getenv("POSTGRES_USER")
 	pPassword := os.Getenv("POSTGRES_PASSWORD")
 	pDb := os.Getenv("POSTGRES_DB")
-	pPort := os.Getenv("POSTGRES_PORT")
-	connStr := "postgres://" + pUser + ":" + pPassword + "@postgres:" + pPort + "/" + pDb + "?sslmode=disable"
+	connStr := "postgres://" + pUser + ":" + pPassword + "@postgres:5432/" + pDb + "?sslmode=disable"
 
 	var db *sql.DB
 	var err error
