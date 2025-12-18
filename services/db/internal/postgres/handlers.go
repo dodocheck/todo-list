@@ -2,18 +2,9 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
 )
-
-type PostgresController struct {
-	db *sql.DB
-}
-
-func NewPostgresController() *PostgresController {
-	return &PostgresController{db: initDB()}
-}
 
 func (pc *PostgresController) Close() error {
 	return pc.db.Close()

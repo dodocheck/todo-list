@@ -7,10 +7,10 @@ import (
 )
 
 type Service struct {
-	dbController DBController
+	dbController TaskRepository
 }
 
-func NewService(dbController DBController) *Service {
+func NewService(dbController TaskRepository) *Service {
 	return &Service{
 		dbController: dbController}
 }

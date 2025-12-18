@@ -12,11 +12,11 @@ import (
 
 type Server struct {
 	pb.UnimplementedTasksServiceServer
-	dbController app.DBController
+	service *app.Service
 }
 
-func NewServer(dbController app.DBController) *Server {
-	return &Server{dbController: dbController}
+func NewServer(service *app.Service) *Server {
+	return &Server{service: service}
 }
 
 func (s *Server) StartServer(serverAddress string) error {

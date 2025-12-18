@@ -13,8 +13,8 @@ type Server struct {
 	httpHandlers *HttpHandlers
 }
 
-func NewServer(dbController app.DBController) *Server {
-	return &Server{httpHandlers: NewHttpHandlers(dbController)}
+func NewServer(service *app.Service) *Server {
+	return &Server{httpHandlers: NewHttpHandlers(service)}
 }
 
 func (s *Server) StartServer() error {

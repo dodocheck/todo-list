@@ -1,4 +1,4 @@
-package cachedcontroller
+package redis
 
 import (
 	"context"
@@ -26,25 +26,25 @@ func initRedis(ctx context.Context, address string) (*redis.Client, error) {
 	return redisClient, nil
 }
 
-func (cc *CachedController) cacheTaskList(ctx context.Context, tasks []models.TaskExportData) error {
+func (rc *RedisController) CacheTaskList(ctx context.Context, tasks []models.TaskExportData) error {
 	taskList, err := json.Marshal(tasks)
 	if err != nil {
 		return err
 	}
 
-	if err := cc.redisClient.Set(ctx, cc.taskListKey, taskList, time.Duration(cc.ttlSeconds)*time.Second).Err(); err != nil {
+	if err := rc.redisClient.Set(ctx, rc.taskListKey, taskList, time.Duration(rc.ttlSeconds)*time.Second).Err(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (cc *CachedController) deleteTaskList(ctx context.Context) error {
-	return cc.redisClient.Del(ctx, cc.taskListKey).Err()
+func (rc *RedisController) DeleteTaskList(ctx context.Context) error {
+	return rc.redisClient.Del(ctx, rc.taskListKey).Err()
 }
 
-func (cc *CachedController) getTaskList(ctx context.Context) ([]models.TaskExportData, error) {
-	tasksStr, err := cc.redisClient.Get(ctx, cc.taskListKey).Result()
+func (rc *RedisController) GetTaskList(ctx context.Context) ([]models.TaskExportData, error) {
+	tasksStr, err := rc.redisClient.Get(ctx, rc.taskListKey).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil, errors.New("cache miss")

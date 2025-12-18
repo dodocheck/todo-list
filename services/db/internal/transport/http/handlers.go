@@ -10,14 +10,14 @@ import (
 )
 
 type HttpHandlers struct {
-	dbController app.DBController
-	closeServer  func() error
+	service     *app.Service
+	closeServer func() error
 }
 
-func NewHttpHandlers(dbController app.DBController) *HttpHandlers {
+func NewHttpHandlers(service *app.Service) *HttpHandlers {
 	return &HttpHandlers{
-		dbController: dbController,
-		closeServer:  nil}
+		service:     service,
+		closeServer: nil}
 }
 
 func (h *HttpHandlers) SetCloseServerFunc(f func() error) {
@@ -51,7 +51,7 @@ func (h *HttpHandlers) handleAddTask(w http.ResponseWriter, r *http.Request) {
 		Text:  taskDTO.Text}
 
 	ctx := r.Context()
-	createdTask, err := h.dbController.AddTask(ctx, taskImportData)
+	createdTask, err := h.service.AddTask(ctx, taskImportData)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusBadRequest)
@@ -87,7 +87,7 @@ failure:
 */
 func (h *HttpHandlers) handleListAllTasks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	tasks, err := h.dbController.ListAllTasks(ctx)
+	tasks, err := h.service.ListAllTasks(ctx)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)
@@ -131,7 +131,7 @@ func (h *HttpHandlers) handleDeleteTask(w http.ResponseWriter, r *http.Request) 
 	}
 
 	ctx := r.Context()
-	if err := h.dbController.DeleteTask(ctx, idDTO.Id); err != nil {
+	if err := h.service.DeleteTask(ctx, idDTO.Id); err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)
 		return
@@ -164,7 +164,7 @@ func (h *HttpHandlers) handleFinishTask(w http.ResponseWriter, r *http.Request) 
 	}
 
 	ctx := r.Context()
-	updatedTask, err := h.dbController.MarkTaskFinished(ctx, idDTO.Id)
+	updatedTask, err := h.service.MarkTaskFinished(ctx, idDTO.Id)
 	if err != nil {
 		errorDTO := NewErrorDTO(err.Error())
 		http.Error(w, errorDTO.ToString(), http.StatusInternalServerError)

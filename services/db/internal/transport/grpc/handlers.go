@@ -16,7 +16,7 @@ func (s *Server) AddTask(ctx context.Context, task *pb.TaskImportData) (*pb.Task
 
 	taskFromPB := taskImportDataFromPB(task)
 
-	createdTask, err := s.dbController.AddTask(ctx, taskFromPB)
+	createdTask, err := s.service.AddTask(ctx, taskFromPB)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "add task error: %v", err)
 	}
@@ -31,7 +31,7 @@ func (s *Server) RemoveTask(ctx context.Context, id *pb.TaskId) (*emptypb.Empty,
 		return nil, status.Error(codes.InvalidArgument, "received empty id")
 	}
 
-	if err := s.dbController.DeleteTask(ctx, taskIdFromPB(id)); err != nil {
+	if err := s.service.DeleteTask(ctx, taskIdFromPB(id)); err != nil {
 		return nil, status.Errorf(codes.Internal, "remove task error: %v", err)
 	}
 
@@ -39,7 +39,7 @@ func (s *Server) RemoveTask(ctx context.Context, id *pb.TaskId) (*emptypb.Empty,
 }
 
 func (s *Server) ListAllTasks(ctx context.Context, _ *emptypb.Empty) (*pb.TaskList, error) {
-	allTasks, err := s.dbController.ListAllTasks(ctx)
+	allTasks, err := s.service.ListAllTasks(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "list tasks error: %v", err)
 	}
@@ -48,7 +48,7 @@ func (s *Server) ListAllTasks(ctx context.Context, _ *emptypb.Empty) (*pb.TaskLi
 }
 
 func (s *Server) MarkTaskFinished(ctx context.Context, id *pb.TaskId) (*pb.TaskExportData, error) {
-	updatedTask, err := s.dbController.MarkTaskFinished(ctx, taskIdFromPB(id))
+	updatedTask, err := s.service.MarkTaskFinished(ctx, taskIdFromPB(id))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "finish task error: %v", err)
 	}
