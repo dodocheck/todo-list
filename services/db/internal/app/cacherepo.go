@@ -28,8 +28,11 @@ func (cr *CachedRepository) AddTask(ctx context.Context, task models.TaskImportD
 	createdTask, err := cr.mainDBClient.AddTask(ctx, task)
 
 	if err == nil {
-		if cacheErr := cr.cacheDBClient.DeleteTaskList(ctx); cacheErr != nil {
-			log.Printf("cache delete tasks err: %v", cacheErr)
+		if cacheTaskErr := cr.cacheDBClient.CacheTask(ctx, createdTask); cacheTaskErr != nil {
+			log.Printf("cache add task err: %v\n", cacheTaskErr)
+		}
+		if cacheTaskListErr := cr.cacheDBClient.DeleteTaskList(ctx); cacheTaskListErr != nil {
+			log.Printf("cache delete tasklist err: %v\n", cacheTaskListErr)
 		}
 	}
 
@@ -40,8 +43,11 @@ func (cr *CachedRepository) DeleteTask(ctx context.Context, id int) error {
 	err := cr.mainDBClient.DeleteTask(ctx, id)
 
 	if err == nil {
-		if cacheErr := cr.cacheDBClient.DeleteTaskList(ctx); cacheErr != nil {
-			log.Printf("cache delete tasks err: %v", cacheErr)
+		if cacheTaskErr := cr.cacheDBClient.DeleteTaskById(ctx, id); cacheTaskErr != nil {
+			log.Printf("cache delete task err: %v\n", cacheTaskErr)
+		}
+		if cacheTaskListErr := cr.cacheDBClient.DeleteTaskList(ctx); cacheTaskListErr != nil {
+			log.Printf("cache delete tasklist err: %v\n", cacheTaskListErr)
 		}
 	}
 
@@ -51,17 +57,26 @@ func (cr *CachedRepository) DeleteTask(ctx context.Context, id int) error {
 func (cr *CachedRepository) ListAllTasks(ctx context.Context) ([]models.TaskExportData, error) {
 	cacheTasks, cacheErr := cr.cacheDBClient.GetTaskList(ctx)
 	if cacheErr == nil {
-		log.Println("cache hit! returning tasks from cache!")
+		log.Println("cache hit! returning tasklist from cache!")
 		return cacheTasks, nil
+	}
+
+	if cacheErr != ErrTaskNotFound {
+		log.Printf("cache degraded: %v\n", cacheErr)
 	}
 
 	tasks, err := cr.mainDBClient.ListAllTasks(ctx)
 
 	if err == nil {
-		if cacheErr := cr.cacheDBClient.CacheTaskList(ctx, tasks); cacheErr != nil {
-			log.Printf("cache cache tasks err: %v", cacheErr)
+		if cacheTaskListErr := cr.cacheDBClient.CacheTaskList(ctx, tasks); cacheTaskListErr != nil {
+			log.Printf("cache tasklist err: %v\n", cacheTaskListErr)
 		}
-		log.Println("returning tasks from main DB")
+		for _, task := range tasks {
+			if err := cr.cacheDBClient.CacheTask(ctx, task); err != nil {
+				log.Printf("cache add task err: %v\n", err)
+			}
+		}
+		log.Println("returning tasklist from main DB")
 		return tasks, nil
 	}
 
@@ -72,8 +87,11 @@ func (cr *CachedRepository) MarkTaskFinished(ctx context.Context, id int) (model
 	updatedTask, err := cr.mainDBClient.MarkTaskFinished(ctx, id)
 
 	if err == nil {
-		if cacheErr := cr.cacheDBClient.DeleteTaskList(ctx); cacheErr != nil {
-			log.Printf("cache delete tasks err: %v", cacheErr)
+		if cacheTaskErr := cr.cacheDBClient.CacheTask(ctx, updatedTask); cacheTaskErr != nil {
+			log.Printf("cache add task err: %v\n", cacheTaskErr)
+		}
+		if cacheTaskListErr := cr.cacheDBClient.DeleteTaskList(ctx); cacheTaskListErr != nil {
+			log.Printf("cache delete tasklist err: %v\n", cacheTaskListErr)
 		}
 	}
 
