@@ -20,10 +20,10 @@ func NewHttpServer(service *app.Service) *HttpServer {
 func (s *HttpServer) StartServer() error {
 	router := mux.NewRouter()
 
-	router.Path("/tasks").Methods("POST").HandlerFunc(s.httpHandlers.handleAddTask)
-	router.Path("/tasks").Methods("GET").HandlerFunc(s.httpHandlers.handleListAllTasks)
-	router.Path("/tasks").Methods("DELETE").HandlerFunc(s.httpHandlers.handleDeleteTask)
-	router.Path("/tasks").Methods("PATCH").HandlerFunc(s.httpHandlers.handleFinishTask)
+	router.Path("/create").Methods("POST").HandlerFunc(s.httpHandlers.handleAddTask)
+	router.Path("/list").Methods("GET").HandlerFunc(s.httpHandlers.handleListAllTasks)
+	router.Path("/delete").Methods("DELETE").HandlerFunc(s.httpHandlers.handleDeleteTask)
+	router.Path("/done").Methods("PUT").HandlerFunc(s.httpHandlers.handleFinishTask)
 
 	server := http.Server{Addr: ":" + os.Getenv("API_SERVICE_INTERNAL_PORT"), Handler: router}
 
