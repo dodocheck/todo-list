@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
 	dbgrpc "github.com/dodocheck/go-pet-project-1/services/api/internal/dbclient/grpc"
+	"github.com/dodocheck/go-pet-project-1/services/api/internal/logger/kafka"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/transport/http"
 	"github.com/dodocheck/go-pet-project-1/services/api/pb"
 	"google.golang.org/grpc"
@@ -25,6 +27,9 @@ func main() {
 	dbClient := dbgrpc.NewDBClient(grpcClient)
 
 	service := app.NewService(dbClient)
+
+	userActionLogger := kafka.NewKafkaWriter("kafka:9092", "actions-log", service.GetLogChannel())
+	userActionLogger.Run(context.Background())
 
 	httpServer := http.NewHttpServer(service)
 

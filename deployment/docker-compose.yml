@@ -14,6 +14,8 @@ services:
     depends_on: 
       db-service:
         condition: service_started
+      kafka:
+        condition: service_started
 
   db-service: 
     container_name: db-service
@@ -44,5 +46,21 @@ services:
   redis:
     image: redis:8-alpine
 
+  kafka:
+    image: apache/kafka:4.1.1
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_KRAFT_MODE: "true"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafkadata:/var/lib/kafka/data
+
 volumes:
   pgdata:
+  kafkadata:
