@@ -28,7 +28,8 @@ func main() {
 
 	service := app.NewService(dbClient)
 
-	userActionLogger := kafka.NewKafkaWriter("kafka:9092", "actions-log", service.GetLogChannel())
+	topic := os.Getenv("KAFKA_TOPIC_NAME")
+	userActionLogger := kafka.NewKafkaWriter("kafka:9092", topic, service.GetLogChannel())
 	userActionLogger.Run(context.Background())
 
 	httpServer := http.NewHttpServer(service)

@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN go build -o api ./cmd
+RUN go build -o logger ./cmd
 
-CMD ["./api"]
+CMD ["./logger"]

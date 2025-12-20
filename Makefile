@@ -57,8 +57,8 @@ clean-db:
 	@$(call RM_RF,$(DB_PB_DIR))
 
 deploy:
-	docker compose -f deployment/docker-compose.yml build --no-cache api-service db-service
-	docker compose -f deployment/docker-compose.yml up -d --force-recreate api-service db-service
+	docker compose -f deployment/docker-compose.yml build --no-cache api-service db-service logger-service
+	docker compose -f deployment/docker-compose.yml up -d --force-recreate api-service db-service logger-service
 
 down:
 	docker compose -f deployment/docker-compose.yml down -v

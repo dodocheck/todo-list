@@ -11,6 +11,7 @@ services:
       API_SERVICE_EXTERNAL_PORT: ${API_SERVICE_EXTERNAL_PORT}
       API_SERVICE_INTERNAL_PORT: ${API_SERVICE_INTERNAL_PORT}
       DB_SERVICE_INTERNAL_PORT: ${DB_SERVICE_INTERNAL_PORT}
+      KAFKA_TOPIC_NAME: ${KAFKA_TOPIC_NAME}
     depends_on: 
       db-service:
         condition: service_started
@@ -32,6 +33,18 @@ services:
       postgres:
         condition: service_started
       redis:
+        condition: service_started
+
+  logger-service:
+    container_name: logger-service
+    build:
+      context: ./../services/logger\
+      dockerfile: ./Dockerfile
+    environment:
+      KAFKA_TOPIC_NAME: ${KAFKA_TOPIC_NAME}
+      LOG_FILE_PATH: ${LOG_FILE_PATH}
+    depends_on:
+      kafka:
         condition: service_started
 
   postgres:
@@ -58,6 +71,11 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: "/var/lib/kafka/data"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
     volumes:
       - kafkadata:/var/lib/kafka/data
 
