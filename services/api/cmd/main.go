@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
 	dbgrpc "github.com/dodocheck/go-pet-project-1/services/api/internal/dbclient/grpc"
@@ -15,6 +17,19 @@ import (
 )
 
 func main() {
+	logPath := os.Getenv("LOG_FILE_PATH")
+
+	_ = os.MkdirAll(filepath.Dir(logPath), 0o755)
+
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		log.Fatal("open log file error:", err)
+	}
+	defer f.Close()
+
+	log.SetOutput(io.MultiWriter(os.Stdout, f))
+	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
+
 	dbAddr := "db-service:" + os.Getenv("DB_SERVICE_INTERNAL_PORT")
 	conn, err := grpc.NewClient(dbAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

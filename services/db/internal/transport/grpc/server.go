@@ -22,7 +22,7 @@ func NewServer(service *app.Service) *Server {
 func (s *Server) StartServer(serverAddress string) error {
 	lis, err := net.Listen("tcp", serverAddress)
 	if err != nil {
-		log.Fatalf("listen %s: %v", serverAddress, err)
+		log.Fatalf("listen %s: %v\n", serverAddress, err)
 	}
 
 	grpcServer := grpc.NewServer()
