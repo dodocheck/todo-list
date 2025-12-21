@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/dodocheck/go-pet-project-1/services/logger/internal/app"
-	"github.com/dodocheck/go-pet-project-1/services/logger/internal/kafka"
+	"github.com/segmentio/kafka-go"
 )
 
 func main() {
@@ -29,10 +29,15 @@ func main() {
 	defer cancel()
 
 	topic := os.Getenv("KAFKA_TOPIC_NAME")
-	reader := kafka.NewKafkaReader("kafka:9092", topic, "loggerGroupId")
-	service := app.NewService(reader)
+	kafkaReader := kafka.NewReader(
+		kafka.ReaderConfig{
+			Brokers: []string{"kafka:9092"},
+			Topic:   topic,
+			GroupID: "loggerGroupId"})
 
-	if err := service.Run(ctx); err != nil {
+	logger := app.NewLogger(kafkaReader)
+
+	if err := logger.Run(ctx); err != nil {
 		log.Fatal(err)
 	}
 }
