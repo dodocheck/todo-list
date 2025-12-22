@@ -18,33 +18,20 @@ func NewDBClient(grpcClient pb.TasksServiceClient) *DBClient {
 
 func (c *DBClient) AddTask(ctx context.Context, task models.TaskImportData) (models.TaskExportData, error) {
 	createdTask, err := c.grpcClient.AddTask(ctx, taskImportDataToPB(task))
-	if err != nil {
-		return models.TaskExportData{}, err
-	}
-	return taskExportDataFromPB(createdTask), nil
+	return taskExportDataFromPB(createdTask), err
 }
 
 func (c *DBClient) RemoveTask(ctx context.Context, id int) error {
 	_, err := c.grpcClient.RemoveTask(ctx, taskIdToPB(id))
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (c *DBClient) ListAllTasks(ctx context.Context) ([]models.TaskExportData, error) {
 	taskList, err := c.grpcClient.ListAllTasks(ctx, &emptypb.Empty{})
-	if err != nil {
-		return nil, err
-	}
-
-	return taskSliceFromPB(taskList), nil
+	return taskSliceFromPB(taskList), err
 }
 
 func (c *DBClient) MarkTaskFinished(ctx context.Context, id int) (models.TaskExportData, error) {
 	updatedTask, err := c.grpcClient.MarkTaskFinished(ctx, taskIdToPB(id))
-	if err != nil {
-		return models.TaskExportData{}, err
-	}
-	return taskExportDataFromPB(updatedTask), nil
+	return taskExportDataFromPB(updatedTask), err
 }

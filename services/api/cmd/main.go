@@ -9,9 +9,10 @@ import (
 
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
 	dbgrpc "github.com/dodocheck/go-pet-project-1/services/api/internal/dbclient/grpc"
-	"github.com/dodocheck/go-pet-project-1/services/api/internal/logger/kafka"
+	"github.com/dodocheck/go-pet-project-1/services/api/internal/logger"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/transport/http"
 	"github.com/dodocheck/go-pet-project-1/services/api/pb"
+	"github.com/segmentio/kafka-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -44,8 +45,14 @@ func main() {
 	service := app.NewService(dbClient)
 
 	topic := os.Getenv("KAFKA_TOPIC_NAME")
-	userActionLogger := kafka.NewKafkaWriter("kafka:9092", topic, service.GetLogChannel())
-	userActionLogger.Run(context.Background())
+	kafkaWriter := kafka.NewWriter(
+		kafka.WriterConfig{
+			Brokers: []string{"kafka:9092"},
+			Topic:   topic,
+		})
+	kafkaWriter.AllowAutoTopicCreation = true
+	userActionLogger := logger.NewLogger(kafkaWriter, service.GetLogChannel())
+	go userActionLogger.Run(context.Background())
 
 	httpServer := http.NewHttpServer(service)
 

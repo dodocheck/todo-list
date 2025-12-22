@@ -168,7 +168,7 @@ func TestService_RemoveTask_Success_SendsLog(t *testing.T) {
 		t.Fatalf("expected RemoveTask calls = 1, got %d", db.removeCalls)
 	}
 
-	wantLog := logger.CreateListTasksLog()
+	wantLog := logger.CreateTaskDeletedLog()
 	logCh := svc.GetLogChannel()
 	l := mustLog(t, logCh)
 	if l.Action == wantLog.Action {
@@ -265,7 +265,7 @@ func TestService_MarkTaskFinished_Success_SendsLog(t *testing.T) {
 		t.Fatalf("unexpected done task %+v", got)
 	}
 
-	wantLog := logger.CreateListTasksLog()
+	wantLog := logger.CreateTaskDoneLog()
 	logCh := svc.GetLogChannel()
 	l := mustLog(t, logCh)
 	if l.Action == wantLog.Action {

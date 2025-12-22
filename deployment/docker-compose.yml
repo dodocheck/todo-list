@@ -18,8 +18,8 @@ services:
     depends_on: 
       db-service:
         condition: service_started
-      kafka:
-        condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
 
   db-service: 
     container_name: db-service
@@ -44,7 +44,7 @@ services:
   logger-service:
     container_name: logger-service
     build:
-      context: ./../services/logger\
+      context: ./../services/logger
       dockerfile: ./Dockerfile
     environment:
       KAFKA_TOPIC_NAME: ${KAFKA_TOPIC_NAME}
@@ -52,8 +52,8 @@ services:
     volumes:
       - loggerdata:/var/lib/logger-service/data
     depends_on:
-      kafka:
-        condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
 
   postgres:
     image: postgres:18-alpine
@@ -86,6 +86,31 @@ services:
       KAFKA_MIN_INSYNC_REPLICAS: 1
     volumes:
       - kafkadata:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  kafka-init:
+    image: apache/kafka:4.1.1
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_TOPIC_NAME: ${KAFKA_TOPIC_NAME:?KAFKA_TOPIC_NAME is required}
+    command:
+      - sh
+      - -ec
+      - |
+          echo "Creating topic: ${KAFKA_TOPIC_NAME}"
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 \
+            --create --if-not-exists --topic "${KAFKA_TOPIC_NAME}" \
+            --partitions 1 --replication-factor 1
+          echo "Topics now:"
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
+          echo "kafka-init done"
+    restart: "no"
 
 volumes:
   pgdata:
