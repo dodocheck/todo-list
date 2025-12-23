@@ -31,7 +31,7 @@ type CachedRepository struct {
 	cacheDBClient CacheController
 }
 
-func NewCachedRepository(ctx context.Context, mainDBClient TaskRepository, cacheDBClient CacheController) *CachedRepository {
+func NewCachedRepository(mainDBClient TaskRepository, cacheDBClient CacheController) *CachedRepository {
 	return &CachedRepository{
 		mainDBClient:  mainDBClient,
 		cacheDBClient: cacheDBClient,

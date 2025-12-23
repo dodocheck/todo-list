@@ -38,7 +38,7 @@ func main() {
 		log.Fatalf("failed to create redis cache controller: %v\n", err)
 	}
 
-	cacheDBRepository := app.NewCachedRepository(ctx, postgresController, redisCacheController)
+	cacheDBRepository := app.NewCachedRepository(postgresController, redisCacheController)
 
 	service := app.NewService(cacheDBRepository)
 

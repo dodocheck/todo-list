@@ -3,136 +3,141 @@ package app
 import (
 	"context"
 	"errors"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
 )
 
 type fakeRepo struct {
-	addFn    func(ctx context.Context, task models.TaskImportData) (models.TaskExportData, error)
-	removeFn func(ctx context.Context, id int) error
-	listFn   func(ctx context.Context) ([]models.TaskExportData, error)
-	doneFn   func(ctx context.Context, id int) (models.TaskExportData, error)
+	addTaskCalls int
+	addTaskCtx   context.Context
+	addTaskIn    models.TaskImportData
+	addTaskRet   models.TaskExportData
+	addTaskErr   error
 
-	addCalls    int
-	removeCalls int
-	listCalls   int
-	doneCalls   int
+	deleteTaskCalls int
+	deleteTaskCtx   context.Context
+	deleteTaskIn    int
+	deleteTaskErr   error
 
-	gotAddCtx  context.Context
-	gotAddTask models.TaskImportData
+	listAllTasksCalls int
+	listAllTasksCtx   context.Context
+	listAllTasksRet   []models.TaskExportData
+	listAllTasksErr   error
 
-	gotRemoveCtx context.Context
-	gotRemoveId  int
+	markTaskFinishedCalls int
+	markTaskFinishedCtx   context.Context
+	markTaskFinishedIn    int
+	markTaskFinishedRet   models.TaskExportData
+	markTaskFinishedErr   error
 
-	gotListCtx context.Context
-
-	gotDoneCtx context.Context
-	gotDoneId  int
-
-	closeCalled bool
+	closeCalled int
 	closeErr    error
 }
 
 func (f *fakeRepo) AddTask(ctx context.Context, task models.TaskImportData) (models.TaskExportData, error) {
-	f.addCalls++
-	f.gotAddCtx = ctx
-	f.gotAddTask = task
-
-	if f.addFn == nil {
-		panic("AddTask called but addFn not set")
-	}
-
-	return f.addFn(ctx, task)
+	f.addTaskCalls++
+	f.addTaskCtx = ctx
+	f.addTaskIn = task
+	return f.addTaskRet, f.addTaskErr
 }
 
 func (f *fakeRepo) DeleteTask(ctx context.Context, id int) error {
-	f.removeCalls++
-	f.gotRemoveCtx = ctx
-	f.gotRemoveId = id
-
-	if f.removeFn == nil {
-		panic("DeleteTask called but removeFn not set")
-	}
-
-	return f.removeFn(ctx, id)
+	f.deleteTaskCalls++
+	f.deleteTaskCtx = ctx
+	f.deleteTaskIn = id
+	return f.deleteTaskErr
 }
 
 func (f *fakeRepo) ListAllTasks(ctx context.Context) ([]models.TaskExportData, error) {
-	f.listCalls++
-	f.gotListCtx = ctx
-
-	if f.listFn == nil {
-		panic("ListAllTasks called but listFn not set")
-	}
-
-	return f.listFn(ctx)
+	f.listAllTasksCalls++
+	f.listAllTasksCtx = ctx
+	return f.listAllTasksRet, f.listAllTasksErr
 }
 
 func (f *fakeRepo) MarkTaskFinished(ctx context.Context, id int) (models.TaskExportData, error) {
-	f.doneCalls++
-	f.gotDoneCtx = ctx
-	f.gotDoneId = id
-
-	if f.doneFn == nil {
-		panic("MarkTaskFinished called but doneFn not set")
-	}
-
-	return f.doneFn(ctx, id)
+	f.markTaskFinishedCalls++
+	f.markTaskFinishedCtx = ctx
+	f.markTaskFinishedIn = id
+	return f.markTaskFinishedRet, f.markTaskFinishedErr
 }
 
 func (f *fakeRepo) Close() error {
-	f.closeCalled = true
+	f.closeCalled++
 	return f.closeErr
 }
 
-func TestAddTask_DelegatesToTaskRepo(t *testing.T) {
-	wantTask := models.TaskExportData{
-		Id:    1,
-		Title: "my title",
-		Text:  "my text",
+func TestServiceAddTask_DelegatesToTaskRepo(t *testing.T) {
+	ctx := context.Background()
+	createdAtTS := time.Date(2025, 12, 10, 4, 6, 3, 2, time.UTC)
+	finishedAtTS := time.Date(2025, 12, 10, 3, 5, 2, 1, time.UTC)
+	wantTaskIn := models.TaskImportData{
+		Title: "some title",
+		Text:  "some text",
+	}
+	wantTaskOut := models.TaskExportData{
+		Id:         1,
+		Title:      "my title",
+		Text:       "my text",
+		Finished:   true,
+		CreatedAt:  createdAtTS,
+		FinishedAt: &finishedAtTS,
 	}
 	wantErr := errors.New("boom")
 	fakeRepo := &fakeRepo{
-		addFn: func(ctx context.Context, task models.TaskImportData) (models.TaskExportData, error) {
-			return wantTask, wantErr
-		},
+		addTaskRet: wantTaskOut,
+		addTaskErr: wantErr,
 	}
 	svc := NewService(fakeRepo)
 
-	gotTask, gotErr := svc.AddTask(context.Background(), models.TaskImportData{})
+	gotTask, gotErr := svc.AddTask(ctx, wantTaskIn)
 
+	if fakeRepo.addTaskCalls != 1 {
+		t.Fatalf("expected AddTask called=1, got %d", fakeRepo.addTaskCalls)
+	}
 	if !errors.Is(gotErr, wantErr) {
 		t.Fatalf("expected err %v, got %v", wantErr, gotErr)
 	}
-	if gotTask.Id != wantTask.Id {
-		t.Fatalf("expected Id %d, got %d", wantTask.Id, gotTask.Id)
+	if fakeRepo.addTaskCtx != ctx {
+		t.Fatalf("context mismatch")
 	}
-	if gotTask.Title != wantTask.Title {
-		t.Fatalf("expected Title %q, got %q", wantTask.Title, gotTask.Title)
+	if !reflect.DeepEqual(fakeRepo.addTaskIn, wantTaskIn) {
+		t.Fatalf("mismatch task in: got:%+v want: %+v", fakeRepo.addTaskIn, wantTaskIn)
 	}
-	if gotTask.Text != wantTask.Text {
-		t.Fatalf("expected Text %q, got %q", wantTask.Text, gotTask.Text)
+	if !reflect.DeepEqual(gotTask, wantTaskOut) {
+		t.Fatalf("mismatch task out: got:%+v want: %+v", gotTask, wantTaskOut)
 	}
 }
 
-func TestDeleteTask_DelegatesToTaskRepo(t *testing.T) {
+func TestServiceDeleteTask_DelegatesToTaskRepo(t *testing.T) {
+	ctx := context.Background()
+	wantId := 23
 	wantErr := errors.New("boom")
 	fakeRepo := &fakeRepo{
-		removeFn: func(ctx context.Context, id int) error {
-			return wantErr
-		},
+		deleteTaskErr: wantErr,
 	}
 	svc := NewService(fakeRepo)
 
-	gotErr := svc.DeleteTask(context.Background(), 1)
+	gotErr := svc.DeleteTask(ctx, wantId)
 
+	if fakeRepo.deleteTaskCalls != 1 {
+		t.Fatalf("expected DeleteTask called=1, got %d", fakeRepo.deleteTaskCalls)
+	}
 	if !errors.Is(gotErr, wantErr) {
 		t.Fatalf("expected err %v, got %v", wantErr, gotErr)
 	}
+	if fakeRepo.deleteTaskCtx != ctx {
+		t.Fatalf("context mismatch")
+	}
+	if fakeRepo.deleteTaskIn != wantId {
+		t.Fatalf("expected id=%d, got %d", wantId, fakeRepo.deleteTaskIn)
+	}
 }
 
-func TestListAllTasks_DelegatesToTaskRepo(t *testing.T) {
+func TestServiceListAllTasks_DelegatesToTaskRepo(t *testing.T) {
+	ctx := context.Background()
 	wantList := []models.TaskExportData{
 		{
 			Id:    1,
@@ -148,61 +153,62 @@ func TestListAllTasks_DelegatesToTaskRepo(t *testing.T) {
 
 	wantErr := errors.New("boom")
 	fakeRepo := &fakeRepo{
-		listFn: func(ctx context.Context) ([]models.TaskExportData, error) {
-			return wantList, wantErr
-		},
+		listAllTasksRet: wantList,
+		listAllTasksErr: wantErr,
 	}
 	svc := NewService(fakeRepo)
 
-	gotTask, gotErr := svc.ListAllTasks(context.Background())
+	got, gotErr := svc.ListAllTasks(context.Background())
 
+	if fakeRepo.listAllTasksCalls != 1 {
+		t.Fatalf("expected ListAllTasks called=1, got %d", fakeRepo.listAllTasksCalls)
+	}
 	if !errors.Is(gotErr, wantErr) {
 		t.Fatalf("expected err %v, got %v", wantErr, gotErr)
 	}
-
-	if len(wantList) != 2 {
-		t.Fatalf("expected len task list =2, got %d", len(wantList))
+	if fakeRepo.listAllTasksCtx != ctx {
+		t.Fatalf("context mismatch")
 	}
-	if gotTask[0].Id != wantList[0].Id ||
-		gotTask[1].Id != wantList[1].Id {
-		t.Fatalf("field Id mismatch")
-	}
-	if gotTask[0].Title != wantList[0].Title ||
-		gotTask[1].Title != wantList[1].Title {
-		t.Fatalf("field Title mismatch")
-	}
-	if gotTask[0].Text != wantList[0].Text ||
-		gotTask[1].Text != wantList[1].Text {
-		t.Fatalf("field Text mismatch")
+	if !reflect.DeepEqual(got, wantList) {
+		t.Fatalf("mismatch task list: want=%+v got=%+v", wantList, got)
 	}
 }
 
-func TestMarkTaskFinished_DelegatesToTaskRepo(t *testing.T) {
+func TestServiceMarkTaskFinished_DelegatesToTaskRepo(t *testing.T) {
+	ctx := context.Background()
+	wantId := 234
+	createdAtTS := time.Date(2025, 12, 10, 4, 6, 3, 2, time.UTC)
+	finishedAtTS := time.Date(2025, 12, 10, 3, 5, 2, 1, time.UTC)
 	wantTask := models.TaskExportData{
-		Id:    1,
-		Title: "my title",
-		Text:  "my text",
+		Id:         wantId,
+		Title:      "my title",
+		Text:       "my text",
+		Finished:   true,
+		CreatedAt:  createdAtTS,
+		FinishedAt: &finishedAtTS,
 	}
 	wantErr := errors.New("boom")
 	fakeRepo := &fakeRepo{
-		doneFn: func(ctx context.Context, id int) (models.TaskExportData, error) {
-			return wantTask, wantErr
-		},
+		markTaskFinishedRet: wantTask,
+		markTaskFinishedErr: wantErr,
 	}
 	svc := NewService(fakeRepo)
 
-	gotTask, gotErr := svc.MarkTaskFinished(context.Background(), 1)
+	gotTask, gotErr := svc.MarkTaskFinished(context.Background(), wantId)
 
+	if fakeRepo.markTaskFinishedCalls != 1 {
+		t.Fatalf("expected MarkTaskFinished called=1, got %d", fakeRepo.markTaskFinishedCalls)
+	}
 	if !errors.Is(gotErr, wantErr) {
 		t.Fatalf("expected err %v, got %v", wantErr, gotErr)
 	}
-	if gotTask.Id != wantTask.Id {
-		t.Fatalf("expected Id %d, got %d", wantTask.Id, gotTask.Id)
+	if fakeRepo.markTaskFinishedCtx != ctx {
+		t.Fatalf("context mismatch")
 	}
-	if gotTask.Title != wantTask.Title {
-		t.Fatalf("expected Title %q, got %q", wantTask.Title, gotTask.Title)
+	if fakeRepo.markTaskFinishedIn != wantId {
+		t.Fatalf("expected id=%d, got=%d", wantId, fakeRepo.markTaskFinishedIn)
 	}
-	if gotTask.Text != wantTask.Text {
-		t.Fatalf("expected Text %q, got %q", wantTask.Text, gotTask.Text)
+	if !reflect.DeepEqual(gotTask, wantTask) {
+		t.Fatalf("mismatch task: want %+v got %+v", wantTask, gotTask)
 	}
 }
