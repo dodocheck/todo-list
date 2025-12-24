@@ -3,7 +3,7 @@ module github.com/dodocheck/go-pet-project-1/services/db
 go 1.25.4
 
 require (
-	github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224101100-ef1da56274d5
+	github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224111728-32ad915ee4c7
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/mux v1.8.1
 	github.com/lib/pq v1.10.9
