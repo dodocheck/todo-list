@@ -62,3 +62,7 @@ deploy:
 
 down:
 	docker compose -f deployment/docker-compose.yml down -v
+
+test:
+	go test ./services/api/... ./services/db/... ./services/logger/...
+

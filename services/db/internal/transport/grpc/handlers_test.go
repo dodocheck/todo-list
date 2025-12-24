@@ -136,5 +136,161 @@ func TestAddTask_OK_DelegatesToService(t *testing.T) {
 	if diff := cmp.Diff(got, taskExportDataToPB(wantTaskOut), protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
+}
 
+func TestRemoveTask_NilId_ReturnsInvalidArgument(t *testing.T) {
+	srv := NewServer(app.NewService(&fakeRepo{}))
+
+	_, err := srv.RemoveTask(context.Background(), nil)
+
+	if status.Code(err) != codes.InvalidArgument {
+		t.Fatalf("code=%v want=%v got=%v", status.Code(err), codes.InvalidArgument, err)
+	}
+}
+
+func TestRemoveTask_ServiceError_ReturnsInternalError(t *testing.T) {
+	ctx := context.Background()
+	wantId := 53
+	fr := &fakeRepo{deleteTaskErr: errors.New("boom")}
+	srv := NewServer(app.NewService(fr))
+
+	_, err := srv.RemoveTask(ctx, &pb.TaskId{Id: int64(wantId)})
+
+	if fr.deleteTaskCalls != 1 {
+		t.Fatalf("expected RemoveTask calls=1, got=%d", fr.deleteTaskCalls)
+	}
+	if fr.deleteTaskCtx != ctx {
+		t.Fatalf("context mismatch")
+	}
+	if fr.deleteTaskIn != wantId {
+		t.Fatalf("expected id=%d, got=%d", wantId, fr.deleteTaskIn)
+	}
+	if status.Code(err) != codes.Internal {
+		t.Fatalf("code=%v want=%v got=%v", status.Code(err), codes.Internal, err)
+	}
+}
+
+func TestRemoveTask_OK_ReturnsNil(t *testing.T) {
+	srv := NewServer(app.NewService(&fakeRepo{}))
+
+	got, err := srv.RemoveTask(context.Background(), &pb.TaskId{Id: int64(2)})
+
+	if got != nil {
+		t.Fatalf("expected nil, got %v", got)
+	}
+	if err != nil {
+		t.Fatalf("expected nil, got %v", err)
+	}
+}
+
+func TestListAllTasks_OK_ReturnsTaskListAndNil(t *testing.T) {
+	ctx := context.Background()
+	createdAtTS := time.Date(2025, 12, 10, 4, 6, 3, 2, time.UTC)
+	finishedAtTS := time.Date(2025, 12, 10, 3, 5, 2, 1, time.UTC)
+	wantTasksOut := []models.TaskExportData{
+		{
+			Id:         4,
+			Title:      "my title",
+			Text:       "my text",
+			Finished:   false,
+			CreatedAt:  createdAtTS,
+			FinishedAt: nil,
+		},
+		{
+			Id:         54,
+			Title:      "my title2",
+			Text:       "my text2",
+			Finished:   true,
+			CreatedAt:  createdAtTS,
+			FinishedAt: &finishedAtTS,
+		},
+	}
+	fr := &fakeRepo{listAllTasksRet: wantTasksOut}
+	srv := NewServer(app.NewService(fr))
+
+	got, err := srv.ListAllTasks(ctx, nil)
+
+	if err != nil {
+		t.Fatalf("expected nil, got %v", err)
+	}
+	if fr.listAllTasksCalls != 1 {
+		t.Fatalf("expected ListAllTasks calls=1, got=%d", fr.listAllTasksCalls)
+	}
+	if fr.listAllTasksCtx != ctx {
+		t.Fatal("context mismatch")
+	}
+	if diff := cmp.Diff(got, taskSliceToPB(wantTasksOut), protocmp.Transform()); diff != "" {
+		t.Fatal(diff)
+	}
+}
+
+func TestListAllTasks_ServiceError_ReturnsInternalErrorAndNilTaskList(t *testing.T) {
+	wantErr := errors.New("boom")
+	srv := NewServer(app.NewService(&fakeRepo{listAllTasksErr: wantErr}))
+
+	got, err := srv.ListAllTasks(context.Background(), nil)
+	if got != nil {
+		t.Fatalf("expected nil, got %v", got)
+	}
+	if status.Code(err) != codes.Internal {
+		t.Fatalf("code=%v, want=%v, err=%v", status.Code(err), codes.Internal, err)
+	}
+}
+
+func TestMarkTaskFinished_NilId_ReturnsInvalidArgument(t *testing.T) {
+	srv := NewServer(app.NewService(&fakeRepo{}))
+
+	_, err := srv.MarkTaskFinished(context.Background(), nil)
+
+	if status.Code(err) != codes.InvalidArgument {
+		t.Fatalf("code=%v, want=%v, err=%v", status.Code(err), codes.InvalidArgument, err)
+	}
+}
+
+func TestMarkTaskFinished_OK_DelegatesToService(t *testing.T) {
+	ctx := context.Background()
+	wantId := 34
+	createdAtTS := time.Date(2025, 12, 10, 4, 6, 3, 2, time.UTC)
+	finishedAtTS := time.Date(2025, 12, 10, 3, 5, 2, 1, time.UTC)
+	wantTaskOut := models.TaskExportData{
+		Id:         54,
+		Title:      "my title2",
+		Text:       "my text2",
+		Finished:   true,
+		CreatedAt:  createdAtTS,
+		FinishedAt: &finishedAtTS,
+	}
+	fr := &fakeRepo{markTaskFinishedRet: wantTaskOut}
+	srv := NewServer(app.NewService(fr))
+
+	got, err := srv.MarkTaskFinished(ctx, &pb.TaskId{Id: int64(wantId)})
+
+	if err != nil {
+		t.Fatalf("expected nil, got %v", err)
+	}
+	if fr.markTaskFinishedCalls != 1 {
+		t.Fatalf("expected MarkTaskFinished calls=1, got=%d", fr.markTaskFinishedCalls)
+	}
+	if fr.markTaskFinishedCtx != ctx {
+		t.Fatal("context mismatch")
+	}
+	if fr.markTaskFinishedIn != wantId {
+		t.Fatalf("expected id=%d, got=%v", wantId, fr.markTaskFinishedIn)
+	}
+	if diff := cmp.Diff(got, taskExportDataToPB(wantTaskOut), protocmp.Transform()); diff != "" {
+		t.Fatal(diff)
+	}
+}
+
+func TestMarkTaskFinished_ServiceError_ReturnsInternal(t *testing.T) {
+	srv := NewServer(app.NewService(&fakeRepo{markTaskFinishedErr: errors.New("boom")}))
+
+	got, err := srv.MarkTaskFinished(context.Background(), &pb.TaskId{Id: 94})
+
+	if got != nil {
+		t.Fatalf("expected nil, got %v", got)
+	}
+	if status.Code(err) != codes.Internal {
+		t.Fatalf("code=%v, want=%v, err=%v", status.Code(err), codes.Internal, err)
+	}
 }

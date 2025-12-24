@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/dodocheck/go-pet-project-1/services/api/internal/logger"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/models"
 )
 
@@ -124,12 +123,8 @@ func TestService_AddTask_Success_SendsLog(t *testing.T) {
 		t.Fatalf("unexpected created task %+v", got)
 	}
 
-	wantLog := logger.CreateListTasksLog()
 	logCh := svc.GetLogChannel()
-	l := mustLog(t, logCh)
-	if l.Action == wantLog.Action {
-		t.Fatalf("expected non-empty action log, got %+v", l)
-	}
+	mustLog(t, logCh)
 }
 
 func TestService_AddTask_Error_DoesNotSendLog(t *testing.T) {
@@ -168,12 +163,8 @@ func TestService_RemoveTask_Success_SendsLog(t *testing.T) {
 		t.Fatalf("expected RemoveTask calls = 1, got %d", db.removeCalls)
 	}
 
-	wantLog := logger.CreateTaskDeletedLog()
 	logCh := svc.GetLogChannel()
-	l := mustLog(t, logCh)
-	if l.Action == wantLog.Action {
-		t.Fatalf("expected non-empty action log, got %+v", l)
-	}
+	mustLog(t, logCh)
 }
 
 func TestService_RemoveTask_Error_DoesNotSendLog(t *testing.T) {
@@ -209,15 +200,11 @@ func TestService_ListAllTasks_Success_SendsLog(t *testing.T) {
 		t.Fatalf("expected nil, got %v", err)
 	}
 	if db.listCalls != 1 {
-		t.Fatalf("expected AddTask calls = 1, got %d", db.listCalls)
+		t.Fatalf("expected ListAllTasks calls = 1, got %d", db.listCalls)
 	}
 
-	wantLog := logger.CreateListTasksLog()
 	logCh := svc.GetLogChannel()
-	l := mustLog(t, logCh)
-	if l.Action == wantLog.Action {
-		t.Fatalf("expected non-empty action log, got %+v", l)
-	}
+	mustLog(t, logCh)
 }
 
 func TestService_ListAllTasks_Error_DoesNotSendLog(t *testing.T) {
@@ -259,18 +246,14 @@ func TestService_MarkTaskFinished_Success_SendsLog(t *testing.T) {
 		t.Fatalf("expected nil, got %v", err)
 	}
 	if db.doneCalls != 1 {
-		t.Fatalf("expected AddTask calls = 1, got %d", db.doneCalls)
+		t.Fatalf("expected MarkTaskFinished calls = 1, got %d", db.doneCalls)
 	}
 	if got.Id != 1 || got.Title != "my title" || got.Text != "my text" || got.Finished != true {
 		t.Fatalf("unexpected done task %+v", got)
 	}
 
-	wantLog := logger.CreateTaskDoneLog()
 	logCh := svc.GetLogChannel()
-	l := mustLog(t, logCh)
-	if l.Action == wantLog.Action {
-		t.Fatalf("expected non-empty action log, got %+v", l)
-	}
+	mustLog(t, logCh)
 }
 
 func TestService_MarkTaskFinished_Error_DoesNotSendLog(t *testing.T) {

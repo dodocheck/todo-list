@@ -48,9 +48,14 @@ func (s *Server) ListAllTasks(ctx context.Context, _ *emptypb.Empty) (*pb.TaskLi
 }
 
 func (s *Server) MarkTaskFinished(ctx context.Context, id *pb.TaskId) (*pb.TaskExportData, error) {
+	if id == nil {
+		return nil, status.Error(codes.InvalidArgument, "received empty id")
+	}
+
 	updatedTask, err := s.service.MarkTaskFinished(ctx, taskIdFromPB(id))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "finish task error: %v\n", err)
 	}
+
 	return taskExportDataToPB(updatedTask), nil
 }
