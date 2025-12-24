@@ -50,8 +50,8 @@ func createTasksTable(db *sql.DB) {
 
 	createQuery := `create table if not exists tasks (
                 id bigserial primary key,
-                title varchar(20) not null,
-                text varchar(100),
+                title varchar(50) not null,
+                text varchar(200),
                 finished bool default false,
                 created_at timestamp not null default NOW(),
                 finished_at timestamp default NULL);`

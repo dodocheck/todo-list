@@ -17,6 +17,11 @@ down:
 test:
 	go test ./services/api/... ./services/db/... ./services/logger/... -cover
 
+integration-test:
+	docker compose -f deployment/docker-compose.yml --env-file deployment/.env up -d --build
+	go test -tags=integration ./services/api/integration -count=1
+	docker compose -f deployment/docker-compose.yml --env-file deployment/.env down -v
+
 lint:
 	golangci-lint run ./services/api/... ./services/db/... ./services/logger/...
 
