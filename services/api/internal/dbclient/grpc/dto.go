@@ -1,8 +1,8 @@
 package dbgrpc
 
 import (
+	"github.com/dodocheck/go-pet-project-1/pkg/pb"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/models"
-	"github.com/dodocheck/go-pet-project-1/services/api/pb"
 )
 
 func taskImportDataToPB(task models.TaskImportData) *pb.TaskImportData {

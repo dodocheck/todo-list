@@ -20,10 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TasksService_AddTask_FullMethodName          = "/tasks_pb.TasksService/AddTask"
-	TasksService_RemoveTask_FullMethodName       = "/tasks_pb.TasksService/RemoveTask"
-	TasksService_ListAllTasks_FullMethodName     = "/tasks_pb.TasksService/ListAllTasks"
-	TasksService_MarkTaskFinished_FullMethodName = "/tasks_pb.TasksService/MarkTaskFinished"
+	TasksService_AddTask_FullMethodName          = "/pb.TasksService/AddTask"
+	TasksService_RemoveTask_FullMethodName       = "/pb.TasksService/RemoveTask"
+	TasksService_ListAllTasks_FullMethodName     = "/pb.TasksService/ListAllTasks"
+	TasksService_MarkTaskFinished_FullMethodName = "/pb.TasksService/MarkTaskFinished"
 )
 
 // TasksServiceClient is the client API for TasksService service.
@@ -215,7 +215,7 @@ func _TasksService_MarkTaskFinished_Handler(srv interface{}, ctx context.Context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TasksService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "tasks_pb.TasksService",
+	ServiceName: "pb.TasksService",
 	HandlerType: (*TasksServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

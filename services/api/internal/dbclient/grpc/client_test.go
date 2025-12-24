@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/dodocheck/go-pet-project-1/pkg/pb"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/models"
-	"github.com/dodocheck/go-pet-project-1/services/api/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

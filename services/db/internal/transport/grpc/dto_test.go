@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dodocheck/go-pet-project-1/pkg/pb"
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/models"
-	"github.com/dodocheck/go-pet-project-1/services/db/pb"
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"

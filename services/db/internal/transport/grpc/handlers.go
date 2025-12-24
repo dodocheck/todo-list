@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/dodocheck/go-pet-project-1/services/db/pb"
+	"github.com/dodocheck/go-pet-project-1/pkg/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"

@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/dodocheck/go-pet-project-1/pkg/pb"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/app"
 	dbgrpc "github.com/dodocheck/go-pet-project-1/services/api/internal/dbclient/grpc"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/logger"
 	"github.com/dodocheck/go-pet-project-1/services/api/internal/transport/http"
-	"github.com/dodocheck/go-pet-project-1/services/api/pb"
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -37,7 +37,6 @@ func main() {
 		log.Fatal("Failed to dial grpc db:", err)
 	}
 	defer func() { _ = conn.Close() }()
-
 	grpcClient := pb.NewTasksServiceClient(conn)
 
 	dbClient := dbgrpc.NewDBClient(grpcClient)

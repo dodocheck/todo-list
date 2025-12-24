@@ -4,8 +4,8 @@ import (
 	"log"
 	"net"
 
+	"github.com/dodocheck/go-pet-project-1/pkg/pb"
 	"github.com/dodocheck/go-pet-project-1/services/db/internal/app"
-	"github.com/dodocheck/go-pet-project-1/services/db/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

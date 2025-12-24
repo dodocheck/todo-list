@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-import "tasks.proto";
-import "google/protobuf/empty.proto";
-
 package pb;
 
 option go_package = "github.com/dodocheck/go-pet-project-1/pkg/pb;pb";
+
+import "tasks.proto";
+import "google/protobuf/empty.proto";
 
 // Tasks functions API
 service TasksService {
