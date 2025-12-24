@@ -2,7 +2,9 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 
-package tasks_pb;
+package pb;
+
+option go_package = "github.com/dodocheck/go-pet-project-1/pkg/pb;pb";
 
 // Data for adding a new task
 message TaskImportData {
