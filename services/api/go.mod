@@ -3,7 +3,7 @@ module github.com/dodocheck/go-pet-project-1/services/api
 go 1.25.4
 
 require (
-	github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224101100-ef1da56274d5
+	github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224105325-0eaa4d15a599
 	github.com/gorilla/mux v1.8.1
 	github.com/segmentio/kafka-go v0.4.49
 	google.golang.org/grpc v1.77.0
