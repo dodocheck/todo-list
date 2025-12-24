@@ -40,7 +40,7 @@ func (pc *PostgresController) ListAllTasks(ctx context.Context) ([]models.TaskEx
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var task models.TaskExportData

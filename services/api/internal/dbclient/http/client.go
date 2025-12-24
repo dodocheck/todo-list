@@ -41,7 +41,7 @@ func (c *DBClient) AddTask(ctx context.Context, task models.TaskImportData) (mod
 	if err != nil {
 		return models.TaskExportData{}, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
 		return models.TaskExportData{}, errors.New("db-service returned unexpected status " + resp.Status)
@@ -78,7 +78,7 @@ func (c *DBClient) RemoveTask(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.New("db-service returned unexpected status " + resp.Status)
@@ -97,7 +97,7 @@ func (c *DBClient) ListAllTasks(ctx context.Context) ([]models.TaskExportData, e
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("db-service returned unexpected status " + resp.Status)
@@ -133,7 +133,7 @@ func (c *DBClient) MarkTaskFinished(ctx context.Context, id int) (models.TaskExp
 	if err != nil {
 		return models.TaskExportData{}, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return models.TaskExportData{}, errors.New("db-service returned unexpected status " + resp.Status)

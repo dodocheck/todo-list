@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		log.Fatal("open log file error:", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	log.SetOutput(io.MultiWriter(os.Stdout, f))
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to dial grpc db:", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	grpcClient := pb.NewTasksServiceClient(conn)
 
@@ -52,7 +52,7 @@ func main() {
 		})
 	kafkaWriter.AllowAutoTopicCreation = true
 	userActionLogger := logger.NewLogger(kafkaWriter, service.GetLogChannel())
-	go userActionLogger.Run(context.Background())
+	go func() { _ = userActionLogger.Run(context.Background()) }()
 
 	httpServer := http.NewHttpServer(service)
 

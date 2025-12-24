@@ -66,3 +66,8 @@ down:
 test:
 	go test ./services/api/... ./services/db/... ./services/logger/...
 
+lint:
+	golangci-lint run ./services/api/... ./services/db/... ./services/logger/...
+
+format:
+	golangci-lint fmt

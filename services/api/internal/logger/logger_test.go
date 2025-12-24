@@ -16,7 +16,6 @@ type fakeWriter struct {
 	writeMsgCalled bool
 	gotCtx         context.Context
 	gotCtxCancel   context.CancelFunc
-	writeMsgErr    error
 }
 
 func (fw *fakeWriter) Close() error {

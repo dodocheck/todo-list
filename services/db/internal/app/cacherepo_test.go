@@ -173,7 +173,7 @@ func TestCacheRepoAddTask_Success_CallsCacheController(t *testing.T) {
 		&fakeRepo{addTaskRet: wantTaskOut},
 		fcr)
 
-	cr.AddTask(ctx, models.TaskImportData{})
+	_, _ = cr.AddTask(ctx, models.TaskImportData{})
 
 	if fcr.cacheTaskCalls != 1 {
 		t.Fatalf("expected CacheTask called once, got %d calls", fcr.cacheTaskCalls)
@@ -199,7 +199,7 @@ func TestCacheRepoAddTask_Error_DoesNotCallCacheController(t *testing.T) {
 		&fakeRepo{addTaskErr: wantErr},
 		fcr)
 
-	cr.AddTask(context.Background(), models.TaskImportData{})
+	_, _ = cr.AddTask(context.Background(), models.TaskImportData{})
 	if fcr.cacheTaskCalls != 0 {
 		t.Fatalf("expected CacheTask not called, got %d calls", fcr.cacheTaskCalls)
 	}
@@ -243,7 +243,7 @@ func TestCacheRepoDeleteTask_Success_CallsCacheController(t *testing.T) {
 		&fakeRepo{},
 		fcr)
 
-	cr.DeleteTask(ctx, wantId)
+	_ = cr.DeleteTask(ctx, wantId)
 
 	if fcr.deleteTaskByIdCalls != 1 {
 		t.Fatalf("expected DeleteTaskById called once, got %d calls", fcr.deleteTaskByIdCalls)
@@ -269,7 +269,7 @@ func TestCacheRepoDeleteTask_Error_DoesNotCallCacheController(t *testing.T) {
 		&fakeRepo{deleteTaskErr: wantErr},
 		fcr)
 
-	cr.DeleteTask(context.Background(), 1)
+	_ = cr.DeleteTask(context.Background(), 1)
 	if fcr.deleteTaskByIdCalls != 0 {
 		t.Fatalf("expected DeleteTaskById not called, got %d calls", fcr.deleteTaskByIdCalls)
 	}
@@ -401,7 +401,7 @@ func TestCacheRepoListAllTasks_CacheMissTaskRepoSuccess_CallsCacheController(t *
 		&fakeRepo{listAllTasksRet: wantTasksOut},
 		fcr)
 
-	cr.ListAllTasks(ctx)
+	_, _ = cr.ListAllTasks(ctx)
 	if fcr.cacheTaskListCalls != 1 {
 		t.Fatalf("expected CacheTaskList called once, got %d calls", fcr.cacheTaskListCalls)
 	}
@@ -425,7 +425,7 @@ func TestCacheRepoListAllTasks_CacheMissTaskRepoError_DoesNotCallCacheController
 		&fakeRepo{listAllTasksErr: errors.New("my error")},
 		fcr)
 
-	cr.ListAllTasks(context.Background())
+	_, _ = cr.ListAllTasks(context.Background())
 	if fcr.cacheTaskListCalls != 0 {
 		t.Fatalf("expected CacheTaskList not called, got %d calls", fcr.cacheTaskListCalls)
 	}
@@ -492,7 +492,7 @@ func TestCacheRepoMarkTaskFinished_Success_CallsCacheController(t *testing.T) {
 		&fakeRepo{markTaskFinishedRet: wantTaskOut},
 		fcr)
 
-	cr.MarkTaskFinished(ctx, 1)
+	_, _ = cr.MarkTaskFinished(ctx, 1)
 	if fcr.cacheTaskCalls != 1 {
 		t.Fatalf("expected CacheTask called once, got %d calls", fcr.cacheTaskCalls)
 	}
@@ -517,7 +517,7 @@ func TestCacheRepoMarkTaskFinished_Error_DoesNotCallCacheController(t *testing.T
 		&fakeRepo{markTaskFinishedErr: wantErr},
 		fcr)
 
-	cr.MarkTaskFinished(context.Background(), 1)
+	_, _ = cr.MarkTaskFinished(context.Background(), 1)
 	if fcr.cacheTaskCalls != 0 {
 		t.Fatalf("expected CacheTask not called, got %d calls", fcr.cacheTaskCalls)
 	}

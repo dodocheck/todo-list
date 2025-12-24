@@ -23,7 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal("open log file error:", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	log.SetOutput(io.MultiWriter(os.Stdout, f))
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
