@@ -1,7 +1,7 @@
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224105325-0eaa4d15a599 h1:4smQ6U+I2RiCUPBDo8eunTd6EY6izBwxSHc50cjKMu4=
-github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224105325-0eaa4d15a599/go.mod h1:KajZ6/JQk/EYo6uuUE9OsKS86MMVeB3tMjv5cKC0zIw=
+github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224110946-e14a26199fc6 h1:kcNQwmewZiEJtqDSzBQcC8YoxeVujpSJZOOG8tj0E9w=
+github.com/dodocheck/go-pet-project-1/pkg/pb v0.0.0-20251224110946-e14a26199fc6/go.mod h1:KajZ6/JQk/EYo6uuUE9OsKS86MMVeB3tMjv5cKC0zIw=
 github.com/go-logr/logr v1.4.3 h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=
 github.com/go-logr/logr v1.4.3/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/go-logr/stdr v1.2.2 h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=
